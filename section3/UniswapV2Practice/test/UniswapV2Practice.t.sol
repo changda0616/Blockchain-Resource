@@ -30,7 +30,7 @@ contract UniswapV2PracticeTest is Test {
         deal(maker, 100 ether);
         testUSDC.mint(maker, 10000 * 10 ** testUSDC.decimals());
 
-        // mint 1 ETH to taker
+        // mint 100 ETH to taker
         deal(taker, 100 ether);
 
         // create ETH/USDC pair
@@ -45,6 +45,17 @@ contract UniswapV2PracticeTest is Test {
     // # Practice 1: maker add liquidity (100 ETH, 10000 USDC)
     function test_maker_addLiquidityETH() public {
         // Implement here
+        vm.startPrank(maker);
+        testUSDC.approve(address(UNISWAP_V2_ROUTER), 10000 * 10 ** testUSDC.decimals());
+        UNISWAP_V2_ROUTER.addLiquidityETH{ value: 100 ether }(
+            address(testUSDC),
+            10000 * 10 ** testUSDC.decimals(),
+            0,
+            0,
+            maker,
+            block.timestamp + 1000
+        );
+        vm.stopPrank();
 
         // Checking
         IUniswapV2Pair wethUsdcPair = IUniswapV2Pair(UNISWAP_V2_FACTORY.getPair(address(WETH9), address(testUSDC)));
@@ -56,6 +67,24 @@ contract UniswapV2PracticeTest is Test {
     // # Practice 2: taker swap exact 100 ETH for testUSDC
     function test_taker_swapExactETHForTokens() public {
         // Impelement here
+        vm.startPrank(maker);
+        testUSDC.approve(address(UNISWAP_V2_ROUTER), 10000 * 10 ** testUSDC.decimals());
+        UNISWAP_V2_ROUTER.addLiquidityETH{ value: 100 ether }(
+            address(testUSDC),
+            10000 * 10 ** testUSDC.decimals(),
+            0,
+            0,
+            maker,
+            block.timestamp + 1000
+        );
+        changePrank(taker);
+
+        address[] memory path = new address[](2);
+
+        path[0] = address(WETH9);
+        path[1] = address(testUSDC);
+
+        UNISWAP_V2_ROUTER.swapExactETHForTokens{ value: 100 ether }(0, path, taker, block.timestamp);
 
         // Checking
         // # Disscussion 1: discuss why 4992488733 ?
@@ -67,6 +96,32 @@ contract UniswapV2PracticeTest is Test {
     function test_taker_swapExactTokensForETH() public {
         // Impelement here
 
+        // set init 10000 USDC to taker
+        deal(address(testUSDC), taker, 10000 * 10 ** testUSDC.decimals());
+        // add liquidity
+        vm.startPrank(maker);
+        testUSDC.approve(address(UNISWAP_V2_ROUTER), 10000 * 10 ** testUSDC.decimals());
+        UNISWAP_V2_ROUTER.addLiquidityETH{ value: 100 ether }(
+            address(testUSDC),
+            10000 * 10 ** testUSDC.decimals(),
+            0,
+            0,
+            maker,
+            block.timestamp + 1000
+        );
+
+        // taker swap
+        changePrank(taker);
+
+        address[] memory path = new address[](2);
+
+        path[0] = address(testUSDC);
+        path[1] = address(WETH9);
+
+        testUSDC.approve(address(UNISWAP_V2_ROUTER), 10000 * 10 ** testUSDC.decimals());
+
+        UNISWAP_V2_ROUTER.swapExactTokensForETH(10000 * 10 ** testUSDC.decimals(), 0, path, taker, block.timestamp);
+
         // Checking
         // # Disscussion 2: original balance is 100 ether, so delta is 49924887330996494742, but why 49924887330996494742 ?
         assertEq(testUSDC.balanceOf(taker), 0);
@@ -76,6 +131,26 @@ contract UniswapV2PracticeTest is Test {
     // # Practice 4: maker remove all liquidity
     function test_maker_removeLiquidityETH() public {
         // Implement here
+        vm.startPrank(maker);
+        testUSDC.approve(address(UNISWAP_V2_ROUTER), 10000 * 10 ** testUSDC.decimals());
+        (uint amountToken, uint amountETH, uint liquidity) = UNISWAP_V2_ROUTER.addLiquidityETH{ value: 100 ether }(
+            address(testUSDC),
+            10000 * 10 ** testUSDC.decimals(),
+            0,
+            0,
+            maker,
+            block.timestamp + 1000
+        );
+
+        WETHTestUSDCPair.approve(address(UNISWAP_V2_ROUTER), liquidity);
+        UNISWAP_V2_ROUTER.removeLiquidityETH(
+            address(testUSDC),
+            liquidity,
+            0,
+            0,
+            taker,
+            block.timestamp
+        );
 
         // Checking
         IUniswapV2Pair wethUsdcPair = IUniswapV2Pair(UNISWAP_V2_FACTORY.getPair(address(WETH9), address(testUSDC)));
