@@ -53,29 +53,29 @@ contract ArbitragePracticeTest is FlashSwapSetUp {
     //  - swap WETH for USDC in higher price pool
     //  - repay USDC to lower pool
     // for testing convenient, we implement the method 1 here, and the exact WETH borrow amount is 5 WETH
-    function test_arbitrage_with_flash_swap() public {
-        uint256 borrowETH = 5 ether;
-        // token0 is WETH, token1 is USDC
-        arbitrage.arbitrage(address(wethUsdcPool), address(wethUsdcSushiPool), borrowETH);
+    // function test_arbitrage_with_flash_swap() public {
+    //     uint256 borrowETH = 5 ether;
+    //     // token0 is WETH, token1 is USDC
+    //     arbitrage.arbitrage(address(wethUsdcPool), address(wethUsdcSushiPool), borrowETH);
 
-        // we can earn 98.184746 with 5 ETH flash swap
-        assertEq(usdc.balanceOf(address(arbitrage)), 98184746);
-    }
+    //     // we can earn 98.184746 with 5 ETH flash swap
+    //     assertEq(usdc.balanceOf(address(arbitrage)), 98184746);
+    // }
 
     // Method 2 is
     //  - borrow USDC from higher price pool
     //  - swap USDC for WETH in lower pool
     //  - repay WETH to higher pool
-    // function test_arbitrage_with_flash_swap2() public {
-    //     // borrow USDC from price higher pool, 1 ETH = 120 USDC, borrow 500 USDC
-    //     // swap USDC for WETH in price lower pool
-    //     // payback WETH to price higher pool, we earn 0.981603859544115790
-    //     uint256 borrowUSDC = 500 * 10 ** usdc.decimals();
-    //     uint256 _balance = address(msg.sender).balance;
-    //     // token0 is WETH, token1 is USDC
-    //     arbitrage.arbitrage2(address(wethUsdcPool), address(wethUsdcSushiPool), borrowUSDC);
+    function test_arbitrage_with_flash_swap2() public {
+        // borrow USDC from price higher pool, 1 ETH = 120 USDC, borrow 500 USDC
+        // swap USDC for WETH in price lower pool
+        // payback WETH to price higher pool, we earn 0.981603859544115790
+        uint256 borrowUSDC = 500 * 10 ** usdc.decimals();
+        uint256 _balance = address(msg.sender).balance;
+        // token0 is WETH, token1 is USDC
+        arbitrage.arbitrage2(address(wethUsdcPool), address(wethUsdcSushiPool), borrowUSDC);
 
-    //     // we can earn 0.981603859544115790 ETH with 500 USDC flash swap
-    //     assertEq(address(msg.sender).balance, _balance + 981603859544115790);
-    // }
+        // we can earn 0.981603859544115790 ETH with 500 USDC flash swap
+        assertEq(address(msg.sender).balance, _balance + 981603859544115790);
+    }
 }
