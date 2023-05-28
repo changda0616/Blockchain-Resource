@@ -35,7 +35,8 @@ contract Arbitrage is IUniswapV2Callee, Ownable {
     //
     // EXTERNAL NON-VIEW
     //
-
+    
+    // This is the uniswapV2Call for Method 1
     function uniswapV2Call(address sender, uint256 amount0, uint256 amount1, bytes calldata data) external override {
         require(sender == address(this), "Sender must be this contract");
         require(amount0 > 0 || amount1 > 0, "amount0 or amount1 must be greater than 0");
@@ -84,7 +85,8 @@ contract Arbitrage is IUniswapV2Callee, Ownable {
         // Uncomment next line when you do the homework
         IUniswapV2Pair(priceLowerPool).swap(borrowETH, 0, address(this), abi.encode(callbackData));
     }
-
+    
+    // This is the uniswapV2Call for Method 2
     // function uniswapV2Call(address sender, uint256 amount0, uint256 amount1, bytes calldata data) external override {
     //     require(sender == address(this), "Sender must be this contract");
     //     require(amount0 > 0 || amount1 > 0, "amount0 or amount1 must be greater than 0");
